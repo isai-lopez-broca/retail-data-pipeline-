@@ -4,6 +4,7 @@ import pandas as pd
 
 from database import create_connection
 from utils import insert_dataframe
+from validate_data import validate_clientes 
 
 
 # Conectarnos a PostgreSQL
@@ -19,6 +20,17 @@ print("Conexión exitosa a PostgreSQL.")
 ruta_clientes = Path("data/raw/clientes.csv")
 
 df_clientes = pd.read_csv(ruta_clientes)
+
+errors = validate_clientes(df_clientes)
+
+if errors:
+    print("\nERRORES DE VALIDACIÓN:")
+
+    for error in errors:
+        print(f"- {error}")
+
+    connection.close()
+    raise ValueError("Los datos de clientes no son válidos.")
 
 print("\nDatos encontrados en clientes.csv:")
 print(df_clientes)
