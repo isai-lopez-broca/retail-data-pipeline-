@@ -1,13 +1,66 @@
+
 from pathlib import Path
 
 import pandas as pd
 
 from database import create_connection
 from utils import insert_dataframe
-from validate_data import validate_clientes 
+from validate_data import validate_all
 
 
-# Conectarnos a PostgreSQL
+# ==========================================
+# LEER ARCHIVOS CSV
+# ==========================================
+
+ruta_clientes = Path("data/raw/clientes.csv")
+ruta_productos = Path("data/raw/productos.csv")
+ruta_ventas = Path("data/raw/ventas.csv")
+
+
+df_clientes = pd.read_csv(ruta_clientes)
+df_productos = pd.read_csv(ruta_productos)
+df_ventas = pd.read_csv(ruta_ventas)
+
+
+print("\nDatos encontrados en clientes.csv:")
+print(df_clientes)
+
+print("\nDatos encontrados en productos.csv:")
+print(df_productos)
+
+print("\nDatos encontrados en ventas.csv:")
+print(df_ventas)
+
+
+# ==========================================
+# VALIDAR DATOS
+# ==========================================
+
+errors = validate_all(
+    df_clientes,
+    df_productos,
+    df_ventas,
+)
+
+
+if errors:
+    print("\nERRORES DE VALIDACIÓN:")
+
+    for error in errors:
+        print(f"- {error}")
+
+    raise ValueError(
+        "La carga fue detenida debido a errores de validación."
+    )
+
+
+print("\nValidación completada correctamente.")
+
+
+# ==========================================
+# CONECTAR A POSTGRESQL
+# ==========================================
+
 connection = create_connection()
 
 print("Conexión exitosa a PostgreSQL.")
@@ -16,25 +69,6 @@ print("Conexión exitosa a PostgreSQL.")
 # ==========================================
 # CLIENTES
 # ==========================================
-
-ruta_clientes = Path("data/raw/clientes.csv")
-
-df_clientes = pd.read_csv(ruta_clientes)
-
-errors = validate_clientes(df_clientes)
-
-if errors:
-    print("\nERRORES DE VALIDACIÓN:")
-
-    for error in errors:
-        print(f"- {error}")
-
-    connection.close()
-    raise ValueError("Los datos de clientes no son válidos.")
-
-print("\nDatos encontrados en clientes.csv:")
-print(df_clientes)
-
 
 insert_dataframe(
     connection=connection,
@@ -57,14 +91,6 @@ print("\nClientes cargados correctamente.")
 # ==========================================
 # PRODUCTOS
 # ==========================================
-
-ruta_productos = Path("data/raw/productos.csv")
-
-df_productos = pd.read_csv(ruta_productos)
-
-print("\nDatos encontrados en productos.csv:")
-print(df_productos)
-
 
 insert_dataframe(
     connection=connection,
@@ -89,14 +115,6 @@ print("\nProductos cargados correctamente.")
 # VENTAS
 # ==========================================
 
-ruta_ventas = Path("data/raw/ventas.csv")
-
-df_ventas = pd.read_csv(ruta_ventas)
-
-print("\nDatos encontrados en ventas.csv:")
-print(df_ventas)
-
-
 insert_dataframe(
     connection=connection,
     dataframe=df_ventas,
@@ -116,7 +134,11 @@ connection.commit()
 print("\nVentas cargadas correctamente.")
 
 
-# Cerrar conexión
+# ==========================================
+# CERRAR CONEXIÓN
+# ==========================================
+
 connection.close()
 
-print("\nConexión cerrada.") 
+print("\nConexión cerrada.")
+
