@@ -133,3 +133,29 @@ def validate_all(df_clientes, df_productos, df_ventas):
     )
 
     return errors 
+
+if __name__ == "__main__":
+    from pathlib import Path
+    import pandas as pd
+
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
+    clientes = pd.read_csv(BASE_DIR / "data" / "raw" / "clientes.csv")
+    productos = pd.read_csv(BASE_DIR / "data" / "raw" / "productos.csv")
+    ventas = pd.read_csv(BASE_DIR / "data" / "raw" / "ventas.csv")
+
+    errors = validate_all(
+        clientes,
+        productos,
+        ventas,
+    )
+
+    if errors:
+        print("\n❌ ERRORES DE VALIDACIÓN:")
+
+        for error in errors:
+            print(f"- {error}")
+
+        raise ValueError("Los datos no son válidos.")
+
+    print("\n✅ Todos los datos pasaron las validaciones.")
