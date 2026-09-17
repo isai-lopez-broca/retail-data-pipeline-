@@ -1,12 +1,5 @@
-import os
 from pathlib import Path
-
-import psycopg
-from dotenv import load_dotenv
-
-
-# Cargar variables de entorno
-load_dotenv()
+from database import create_connection
 
 
 # Ruta del proyecto
@@ -16,13 +9,7 @@ SQL_DIR = BASE_DIR / "sql" / "warehouse"
 
 
 # Conectar a PostgreSQL
-connection = psycopg.connect(
-    host=os.getenv("DB_HOST"),
-    dbname=os.getenv("DB_NAME"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-)
-
+connection = create_connection()
 
 print("Conexión exitosa a PostgreSQL.")
 
